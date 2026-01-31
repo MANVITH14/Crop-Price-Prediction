@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Result - Crop Price Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌾 Crop Price Prediction Result</h1>
+        </header>
+
+        <main>
+            <div class="result-card">
+                <h2>Prediction Details</h2>
+                <div class="result-info">
+                    <div class="info-item">
+                        <span class="label">Crop:</span>
+                        <span class="value">{{ crop }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">District:</span>
+                        <span class="value">{{ district }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Month:</span>
+                        <span class="value">{{ month }}</span>
+                    </div>
+                    <div class="info-item highlight">
+                        <span class="label">Predicted Price:</span>
+                        <span class="value price">₹ {{ predicted_price }} / quintal</span>
+                    </div>
+                </div>
+            </div>
+
+            {% if graph_url %}
+            <div class="graph-container">
+                <h2>Historical Price Trend</h2>
+                <img src="{{ graph_url }}" alt="Price Trend Graph" class="trend-graph">
+            </div>
+            {% endif %}
+
+            <div class="info-box">
+                <p><strong>Last Updated:</strong> {{ last_updated }}</p>
+            </div>
+
+            <div class="action-buttons">
+                <a href="/" class="btn-secondary">Make Another Prediction</a>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 Crop Price Prediction System | Karnataka Agriculture</p>
+        </footer>
+    </div>
+</body>
+</html>
+

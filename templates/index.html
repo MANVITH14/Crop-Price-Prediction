@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Price Prediction - Karnataka</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌾 Tech-Enabled Crop Price Prediction System</h1>
+            <p class="subtitle">Karnataka Agricultural Price Forecasting</p>
+        </header>
+
+        <main>
+            <div class="info-box">
+                <p><strong>Last Updated:</strong> <span id="last-updated">{{ last_updated }}</span></p>
+            </div>
+
+            <div class="form-container">
+                <form action="/predict" method="POST" id="prediction-form">
+                    <div class="form-group">
+                        <label for="crop">Select Crop:</label>
+                        <select name="crop" id="crop" required>
+                            <option value="">-- Select Crop --</option>
+                            {% for crop in crops %}
+                            <option value="{{ crop }}">{{ crop }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="selected-value" id="crop-selected">
+                            <span class="selected-label">Selected:</span>
+                            <span class="selected-text" id="crop-text">None</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="district">Select District:</label>
+                        <select name="district" id="district" required>
+                            <option value="">-- Select District --</option>
+                            {% for district in districts %}
+                            <option value="{{ district }}">{{ district }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="selected-value" id="district-selected">
+                            <span class="selected-label">Selected:</span>
+                            <span class="selected-text" id="district-text">None</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="month">Select Month:</label>
+                        <select name="month" id="month" required>
+                            <option value="">-- Select Month --</option>
+                            {% for month in months %}
+                            <option value="{{ month }}">{{ month }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="selected-value" id="month-selected">
+                            <span class="selected-label">Selected:</span>
+                            <span class="selected-text" id="month-text">None</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-predict">Predict Price</button>
+                </form>
+            </div>
+
+            <div class="info-section">
+                <h2>About This System</h2>
+                <ul>
+                    <li>✅ Predicts prices for <strong>Coconut</strong>, <strong>Arecanut</strong>, and <strong>Pepper</strong></li>
+                    <li>✅ Covers all districts of Karnataka</li>
+                    <li>✅ Uses Machine Learning (Random Forest) for accurate predictions</li>
+                    <li>✅ Updates daily with latest market data</li>
+                    <li>✅ Shows historical price trends</li>
+                </ul>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 Crop Price Prediction System | Karnataka Agriculture</p>
+        </footer>
+    </div>
+
+    <script>
+        // Background color change based on selections
+        const body = document.body;
+        const cropSelect = document.getElementById('crop');
+        const districtSelect = document.getElementById('district');
+        const monthSelect = document.getElementById('month');
+        
+        // Color schemes for different crops
+        const cropColors = {
+            'Coconut': 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',      // Blue tones
+            'Arecanut': 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',     // Green tones
+            'Pepper': 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'        // Pink/Yellow tones
+        };
+        
+        // Default background
+        const defaultBg = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+        
+        function updateBackground() {
+            const crop = cropSelect.value;
+            const district = districtSelect.value;
+            const month = monthSelect.value;
+            
+            // If all three are selected, use crop-specific color
+            if (crop && district && month) {
+                const color = cropColors[crop] || defaultBg;
+                body.style.background = color;
+                body.style.transition = 'background 0.5s ease';
+            }
+            // If crop is selected, use crop color with reduced opacity effect
+            else if (crop) {
+                const color = cropColors[crop] || defaultBg;
+                body.style.background = color;
+                body.style.transition = 'background 0.5s ease';
+            }
+            // If only district or month selected, use subtle color
+            else if (district || month) {
+                body.style.background = 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)';
+                body.style.transition = 'background 0.5s ease';
+            }
+            // Default background
+            else {
+                body.style.background = defaultBg;
+                body.style.transition = 'background 0.5s ease';
+            }
+        }
+        
+        // Update selected value display and styling
+        function updateSelectedDisplay() {
+            const crop = cropSelect.value;
+            const district = districtSelect.value;
+            const month = monthSelect.value;
+            
+            // Update crop display
+            document.getElementById('crop-text').textContent = crop || 'None';
+            document.getElementById('crop-selected').style.display = crop ? 'flex' : 'none';
+            // Update select styling
+            if (crop) {
+                cropSelect.style.backgroundColor = '#f0f7ff';
+                cropSelect.style.borderColor = '#667eea';
+                cropSelect.style.color = '#667eea';
+                cropSelect.style.fontWeight = '600';
+            } else {
+                cropSelect.style.backgroundColor = 'white';
+                cropSelect.style.borderColor = '#ddd';
+                cropSelect.style.color = '#333';
+                cropSelect.style.fontWeight = '500';
+            }
+            
+            // Update district display
+            document.getElementById('district-text').textContent = district || 'None';
+            document.getElementById('district-selected').style.display = district ? 'flex' : 'none';
+            // Update select styling
+            if (district) {
+                districtSelect.style.backgroundColor = '#f0f7ff';
+                districtSelect.style.borderColor = '#667eea';
+                districtSelect.style.color = '#667eea';
+                districtSelect.style.fontWeight = '600';
+            } else {
+                districtSelect.style.backgroundColor = 'white';
+                districtSelect.style.borderColor = '#ddd';
+                districtSelect.style.color = '#333';
+                districtSelect.style.fontWeight = '500';
+            }
+            
+            // Update month display
+            document.getElementById('month-text').textContent = month || 'None';
+            document.getElementById('month-selected').style.display = month ? 'flex' : 'none';
+            // Update select styling
+            if (month) {
+                monthSelect.style.backgroundColor = '#f0f7ff';
+                monthSelect.style.borderColor = '#667eea';
+                monthSelect.style.color = '#667eea';
+                monthSelect.style.fontWeight = '600';
+            } else {
+                monthSelect.style.backgroundColor = 'white';
+                monthSelect.style.borderColor = '#ddd';
+                monthSelect.style.color = '#333';
+                monthSelect.style.fontWeight = '500';
+            }
+        }
+        
+        // Add event listeners for all selects
+        cropSelect.addEventListener('change', function() {
+            updateBackground();
+            updateSelectedDisplay();
+        });
+        districtSelect.addEventListener('change', function() {
+            updateBackground();
+            updateSelectedDisplay();
+        });
+        monthSelect.addEventListener('change', function() {
+            updateBackground();
+            updateSelectedDisplay();
+        });
+        
+        // Initialize background and display on page load
+        updateBackground();
+        updateSelectedDisplay();
+        
+        // Form validation
+        document.getElementById('prediction-form').addEventListener('submit', function(e) {
+            const crop = document.getElementById('crop').value;
+            const district = document.getElementById('district').value;
+            const month = document.getElementById('month').value;
+
+            if (!crop || !district || !month) {
+                e.preventDefault();
+                alert('Please fill in all fields');
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>
+

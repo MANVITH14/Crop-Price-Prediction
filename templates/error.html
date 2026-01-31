@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - Crop Price Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚠️ Error</h1>
+        </header>
+
+        <main>
+            <div class="error-card">
+                <h2>Something went wrong</h2>
+                <p class="error-message">{{ error_message }}</p>
+                <div class="action-buttons">
+                    <a href="/" class="btn-secondary">Go Back to Home</a>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 Crop Price Prediction System | Karnataka Agriculture</p>
+        </footer>
+    </div>
+</body>
+</html>
+
