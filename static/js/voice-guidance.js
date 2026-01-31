@@ -220,6 +220,14 @@ function isVoiceGuidanceEnabled() {
     return saved === null ? true : saved === 'true';
 }
 
-// Initialize on load
-initializeVoiceGuidance();
+// Initialize voice guidance when page loads
+// Use setTimeout to ensure all dependencies are loaded
+if (typeof getCurrentLanguage === 'function' && typeof getTranslation === 'function') {
+    initializeVoiceGuidance();
+} else {
+    // Wait for dependencies
+    window.addEventListener('load', function() {
+        setTimeout(initializeVoiceGuidance, 200);
+    });
+}
 
