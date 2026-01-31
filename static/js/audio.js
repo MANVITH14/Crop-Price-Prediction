@@ -30,36 +30,59 @@ const speechSupported = 'speechSynthesis' in window;
 function speakText(text, lang = 'en-IN', onStart = null, onEnd = null) {
     if (!speechSupported) {
         console.warn('Web Speech API not supported in this browser');
+        // Fallback: show alert
+        alert(text);
         if (onEnd) onEnd();
         return;
     }
     
+    if (!text || text.trim() === '') {
+        console.warn('Empty text provided to speakText');
+        if (onEnd) onEnd();
+        return;
+    }
+    
+    console.log('Speaking:', text, 'Language:', lang);
+    
     // Cancel any ongoing speech
     window.speechSynthesis.cancel();
     
-    // Create speech utterance
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = lang;
-    utterance.rate = 0.9; // Slightly slower for clarity
-    utterance.pitch = 1.0;
-    utterance.volume = 1.0;
-    
-    // Event handlers
-    utterance.onstart = function() {
-        if (onStart) onStart();
-    };
-    
-    utterance.onend = function() {
-        if (onEnd) onEnd();
-    };
-    
-    utterance.onerror = function(event) {
-        console.error('Speech synthesis error:', event);
-        if (onEnd) onEnd();
-    };
-    
-    // Speak
-    window.speechSynthesis.speak(utterance);
+    // Small delay to ensure cancellation is processed
+    setTimeout(function() {
+        // Create speech utterance
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = lang;
+        utterance.rate = 0.9; // Slightly slower for clarity
+        utterance.pitch = 1.0;
+        utterance.volume = 1.0;
+        
+        // Event handlers
+        utterance.onstart = function() {
+            console.log('Speech started');
+            if (onStart) onStart();
+        };
+        
+        utterance.onend = function() {
+            console.log('Speech ended');
+            if (onEnd) onEnd();
+        };
+        
+        utterance.onerror = function(event) {
+            console.error('Speech synthesis error:', event);
+            // Fallback: show alert
+            alert(text);
+            if (onEnd) onEnd();
+        };
+        
+        // Speak
+        try {
+            window.speechSynthesis.speak(utterance);
+        } catch (error) {
+            console.error('Error speaking:', error);
+            alert(text);
+            if (onEnd) onEnd();
+        }
+    }, 50);
 }
 
 /**
