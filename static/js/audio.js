@@ -73,8 +73,8 @@ function stopSpeech() {
 
 /**
  * Speak predicted price in selected language
- * @param {string} crop - Crop name
- * @param {string} district - District name
+ * @param {string} crop - Crop name (English)
+ * @param {string} district - District name (English)
  * @param {string} date - Date string
  * @param {number} price - Predicted price
  */
@@ -82,8 +82,12 @@ function speakPrice(crop, district, date, price) {
     const currentLang = getCurrentLanguage();
     const langCode = currentLang === 'kn' ? 'kn-IN' : 'en-IN';
     
+    // Convert crop and district to current language
+    const cropName = getCropName(crop, currentLang);
+    const districtName = getDistrictName(district, currentLang);
+    
     // Get audio message based on language
-    const audioMessage = translations[currentLang].audioPrice(crop, district, date, price);
+    const audioMessage = translations[currentLang].audioPrice(cropName, districtName, date, price);
     
     // Update button state
     const audioBtn = document.getElementById('audio-btn');

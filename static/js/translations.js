@@ -67,7 +67,53 @@ const translations = {
         
         // Audio messages
         audioPrice: (crop, district, date, price) => 
-            `The predicted price for ${crop} in ${district} on ${date} is ${price} rupees per quintal.`
+            `The predicted price for ${crop} in ${district} on ${date} is ${price} rupees per quintal.`,
+        
+        // Crop names
+        cropCoconut: "Coconut",
+        cropArecanut: "Arecanut",
+        cropPepper: "Pepper",
+        
+        // District names (Karnataka districts)
+        districtBagalkot: "Bagalkot",
+        districtBallari: "Ballari",
+        districtBelagavi: "Belagavi",
+        districtBengaluruRural: "Bengaluru Rural",
+        districtBengaluruUrban: "Bengaluru Urban",
+        districtBidar: "Bidar",
+        districtChamarajanagar: "Chamarajanagar",
+        districtChikkaballapur: "Chikkaballapur",
+        districtChikkamagaluru: "Chikkamagaluru",
+        districtChitradurga: "Chitradurga",
+        districtDakshinaKannada: "Dakshina Kannada",
+        districtDavanagere: "Davanagere",
+        districtDharwad: "Dharwad",
+        districtGadag: "Gadag",
+        districtHassan: "Hassan",
+        districtHaveri: "Haveri",
+        districtKalaburagi: "Kalaburagi",
+        districtKodagu: "Kodagu",
+        districtKolar: "Kolar",
+        districtKoppal: "Koppal",
+        districtMandya: "Mandya",
+        districtMysuru: "Mysuru",
+        districtRaichur: "Raichur",
+        districtRamanagara: "Ramanagara",
+        districtShivamogga: "Shivamogga",
+        districtTumakuru: "Tumakuru",
+        districtUdupi: "Udupi",
+        districtUttaraKannada: "Uttara Kannada",
+        districtVijayapura: "Vijayapura",
+        districtYadgir: "Yadgir",
+        
+        // Voice guidance messages
+        voiceCropSelected: (crop) => `You selected ${crop}`,
+        voiceDistrictSelected: (district) => `You selected ${district} district`,
+        voiceDateSelected: (date) => `You selected date ${date}`,
+        voiceButtonClick: (button) => `${button} button clicked`,
+        voiceFormSubmit: "Submitting prediction form",
+        voiceValidationError: "Please fill in all fields",
+        voicePredictionComplete: "Prediction completed successfully"
     },
     
     kn: {
@@ -158,5 +204,34 @@ function getCurrentLanguage() {
  */
 function setCurrentLanguage(lang) {
     localStorage.setItem('language', lang);
+}
+
+/**
+ * Get crop name in current language
+ * @param {string} crop - Crop name in English
+ * @param {string} lang - Language code
+ * @returns {string} Translated crop name
+ */
+function getCropName(crop, lang) {
+    const cropMap = {
+        'Coconut': lang === 'kn' ? translations.kn.cropCoconut : translations.en.cropCoconut,
+        'Arecanut': lang === 'kn' ? translations.kn.cropArecanut : translations.en.cropArecanut,
+        'Pepper': lang === 'kn' ? translations.kn.cropPepper : translations.en.cropPepper
+    };
+    return cropMap[crop] || crop;
+}
+
+/**
+ * Get district name in current language
+ * @param {string} district - District name in English
+ * @param {string} lang - Language code
+ * @returns {string} Translated district name
+ */
+function getDistrictName(district, lang) {
+    // Create key from district name (remove spaces, special chars)
+    const key = 'district' + district.replace(/\s+/g, '').replace(/[^a-zA-Z0-9]/g, '');
+    const translation = getTranslation(lang, key);
+    // If translation not found, return original
+    return translation !== key ? translation : district;
 }
 

@@ -9,6 +9,7 @@
     <script src="{{ url_for('static', filename='js/translations.js') }}"></script>
     <script src="{{ url_for('static', filename='js/language.js') }}"></script>
     <script src="{{ url_for('static', filename='js/audio.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/voice-guidance.js') }}"></script>
 </head>
 <body>
     <div class="container">
@@ -32,7 +33,7 @@
                         <select name="crop" id="crop" required>
                             <option value="" data-translate="selectCropPlaceholder">-- Select Crop --</option>
                             {% for crop in crops %}
-                            <option value="{{ crop }}">{{ crop }}</option>
+                            <option value="{{ crop }}" data-crop-en="{{ crop }}" data-crop-kn="">{{ crop }}</option>
                             {% endfor %}
                         </select>
                         <div class="selected-value" id="crop-selected">
@@ -46,7 +47,7 @@
                         <select name="district" id="district" required>
                             <option value="" data-translate="selectDistrictPlaceholder">-- Select District --</option>
                             {% for district in districts %}
-                            <option value="{{ district }}">{{ district }}</option>
+                            <option value="{{ district }}" data-district-en="{{ district }}" data-district-kn="">{{ district }}</option>
                             {% endfor %}
                         </select>
                         <div class="selected-value" id="district-selected">
@@ -223,6 +224,42 @@
         // Initialize background and display on page load
         updateBackground();
         updateSelectedDisplay();
+        
+        // Update dropdown options when language changes
+        function updateDropdownOptions() {
+            const currentLang = getCurrentLanguage();
+            
+            // Update crop options
+            const cropSelect = document.getElementById('crop');
+            if (cropSelect) {
+                Array.from(cropSelect.options).forEach(option => {
+                    if (option.value) {
+                        const cropName = getCropName(option.value, currentLang);
+                        option.textContent = `${option.value} / ${cropName}`;
+                    }
+                });
+            }
+            
+            // Update district options
+            const districtSelect = document.getElementById('district');
+            if (districtSelect) {
+                Array.from(districtSelect.options).forEach(option => {
+                    if (option.value) {
+                        const districtName = getDistrictName(option.value, currentLang);
+                        option.textContent = `${option.value} / ${districtName}`;
+                    }
+                });
+            }
+        }
+        
+        // Update options on language change
+        document.addEventListener('languageChanged', function() {
+            updateDropdownOptions();
+            updateSelectedDisplay();
+        });
+        
+        // Initial update
+        updateDropdownOptions();
         
         // Form validation
         document.getElementById('prediction-form').addEventListener('submit', function(e) {
