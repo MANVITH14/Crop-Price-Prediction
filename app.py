@@ -238,9 +238,13 @@ if __name__ == '__main__':
         print("Daily updates can still be triggered manually via /update endpoint")
     
     # Run Flask app
+    # Get port from environment variable (Render provides this) or use default 5000
+    port = int(os.environ.get('PORT', 5000))
+    debug_mode = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
+    
     print("\n" + "="*60)
     print("Flask application starting...")
-    print("Open your browser and go to: http://localhost:5000")
+    print(f"Port: {port}")
     print("="*60 + "\n")
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=debug_mode, host='0.0.0.0', port=port)
 
