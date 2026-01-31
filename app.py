@@ -34,10 +34,6 @@ KARNATAKA_DISTRICTS = [
 # Valid crops
 VALID_CROPS = ['Coconut', 'Arecanut', 'Pepper']
 
-# Valid months
-MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
-          'July', 'August', 'September', 'October', 'November', 'December']
-
 
 @app.route('/')
 def index():
@@ -45,10 +41,17 @@ def index():
     Homepage route - displays the main form for crop price prediction
     """
     last_updated = get_last_updated_date()
+    # Set date range for date picker (today to 1 year ahead)
+    today = datetime.now().date()
+    max_date = (datetime.now() + timedelta(days=365)).date()
+    min_date_str = today.strftime('%Y-%m-%d')
+    max_date_str = max_date.strftime('%Y-%m-%d')
+    
     return render_template('index.html', 
                          districts=KARNATAKA_DISTRICTS,
                          crops=VALID_CROPS,
-                         months=MONTHS,
+                         min_date=min_date_str,
+                         max_date=max_date_str,
                          last_updated=last_updated)
 
 
@@ -61,7 +64,7 @@ def predict():
         # Get form data
         crop = request.form.get('crop', '').strip()
         district = request.form.get('district', '').strip()
-        month = request.form.get('month', '').strip()
+        date_str = request.form.get('date', '').strip()
         
         # Validate inputs
         if not crop or crop not in VALID_CROPS:
@@ -72,9 +75,22 @@ def predict():
             return render_template('error.html', 
                                  error_message="Invalid district selected. Please select a valid Karnataka district.")
         
-        if not month or month not in MONTHS:
+        if not date_str:
             return render_template('error.html', 
-                                 error_message="Invalid month selected. Please select a valid month.")
+                                 error_message="Please select a valid date.")
+        
+        # Parse and validate date
+        try:
+            selected_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            today = datetime.now().date()
+            max_date = (datetime.now() + timedelta(days=365)).date()
+            
+            if selected_date < today or selected_date > max_date:
+                return render_template('error.html', 
+                                     error_message="Please select a date between today and one year from now.")
+        except ValueError:
+            return render_template('error.html', 
+                                 error_message="Invalid date format. Please select a valid date.")
         
         # Ensure model is trained
         train_model_if_needed()
@@ -86,7 +102,7 @@ def predict():
                                  error_message="Model not found. Please train the model first.")
         
         # Make prediction
-        predicted_price = predict_price(crop, district, month)
+        predicted_price = predict_price(crop, district, selected_date)
         
         if predicted_price is None:
             return render_template('error.html', 
@@ -96,15 +112,19 @@ def predict():
         historical_data = get_historical_data(crop, district)
         
         # Generate trend graph
-        graph_url = generate_trend_graph(historical_data, crop, district, month, predicted_price)
+        graph_url = generate_trend_graph(historical_data, crop, district, selected_date, predicted_price)
         
         # Get last updated date
         last_updated = get_last_updated_date()
         
+        # Format date for display
+        formatted_date = selected_date.strftime('%B %d, %Y')
+        
         return render_template('result.html',
                              crop=crop,
                              district=district,
-                             month=month,
+                             date=formatted_date,
+                             date_raw=date_str,
                              predicted_price=round(predicted_price, 2),
                              graph_url=graph_url,
                              last_updated=last_updated)
@@ -114,7 +134,7 @@ def predict():
                              error_message=f"An error occurred: {str(e)}. Please try again.")
 
 
-def generate_trend_graph(historical_data, crop, district, month, predicted_price):
+def generate_trend_graph(historical_data, crop, district, selected_date, predicted_price):
     """
     Generate historical price trend graph with predicted price
     Returns base64 encoded image URL
@@ -130,8 +150,8 @@ def generate_trend_graph(historical_data, crop, district, month, predicted_price
             plt.plot(dates, prices, 'b-', linewidth=2, label='Historical Prices', marker='o', markersize=4)
         
         # Add predicted price point
-        current_date = datetime.now()
-        plt.plot(current_date, predicted_price, 'ro', markersize=10, label=f'Predicted Price ({month})')
+        pred_date = pd.to_datetime(selected_date)
+        plt.plot(pred_date, predicted_price, 'ro', markersize=10, label=f'Predicted Price ({selected_date.strftime("%b %d, %Y")})')
         
         plt.xlabel('Date', fontsize=12, fontweight='bold')
         plt.ylabel('Price (₹ per quintal)', fontsize=12, fontweight='bold')
@@ -165,7 +185,7 @@ def api_predict():
         data = request.get_json()
         crop = data.get('crop', '').strip()
         district = data.get('district', '').strip()
-        month = data.get('month', '').strip()
+        date_str = data.get('date', '').strip()
         
         # Validate inputs
         if crop not in VALID_CROPS:
@@ -174,14 +194,20 @@ def api_predict():
         if district not in KARNATAKA_DISTRICTS:
             return jsonify({'error': 'Invalid district'}), 400
         
-        if month not in MONTHS:
-            return jsonify({'error': 'Invalid month'}), 400
+        if not date_str:
+            return jsonify({'error': 'Invalid date'}), 400
+        
+        # Parse date
+        try:
+            selected_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        except ValueError:
+            return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
         
         # Ensure model is trained
         train_model_if_needed()
         
         # Make prediction
-        predicted_price = predict_price(crop, district, month)
+        predicted_price = predict_price(crop, district, selected_date)
         
         if predicted_price is None:
             return jsonify({'error': 'Prediction failed'}), 500
@@ -189,7 +215,8 @@ def api_predict():
         return jsonify({
             'crop': crop,
             'district': district,
-            'month': month,
+            'date': date_str,
+            'formatted_date': selected_date.strftime('%B %d, %Y'),
             'predicted_price': round(predicted_price, 2),
             'unit': '₹ per quintal',
             'last_updated': get_last_updated_date()

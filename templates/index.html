@@ -49,16 +49,11 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="month">Select Month:</label>
-                        <select name="month" id="month" required>
-                            <option value="">-- Select Month --</option>
-                            {% for month in months %}
-                            <option value="{{ month }}">{{ month }}</option>
-                            {% endfor %}
-                        </select>
-                        <div class="selected-value" id="month-selected">
+                        <label for="date">Select Date:</label>
+                        <input type="date" name="date" id="date" required min="{{ min_date }}" max="{{ max_date }}">
+                        <div class="selected-value" id="date-selected">
                             <span class="selected-label">Selected:</span>
-                            <span class="selected-text" id="month-text">None</span>
+                            <span class="selected-text" id="date-text">None</span>
                         </div>
                     </div>
 
@@ -88,7 +83,7 @@
         const body = document.body;
         const cropSelect = document.getElementById('crop');
         const districtSelect = document.getElementById('district');
-        const monthSelect = document.getElementById('month');
+        const dateInput = document.getElementById('date');
         
         // Color schemes for different crops
         const cropColors = {
@@ -103,10 +98,10 @@
         function updateBackground() {
             const crop = cropSelect.value;
             const district = districtSelect.value;
-            const month = monthSelect.value;
+            const date = dateInput.value;
             
             // If all three are selected, use crop-specific color
-            if (crop && district && month) {
+            if (crop && district && date) {
                 const color = cropColors[crop] || defaultBg;
                 body.style.background = color;
                 body.style.transition = 'background 0.5s ease';
@@ -117,8 +112,8 @@
                 body.style.background = color;
                 body.style.transition = 'background 0.5s ease';
             }
-            // If only district or month selected, use subtle color
-            else if (district || month) {
+            // If only district or date selected, use subtle color
+            else if (district || date) {
                 body.style.background = 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)';
                 body.style.transition = 'background 0.5s ease';
             }
@@ -129,11 +124,19 @@
             }
         }
         
+        // Format date for display
+        function formatDate(dateStr) {
+            if (!dateStr) return 'None';
+            const date = new Date(dateStr + 'T00:00:00');
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return date.toLocaleDateString('en-US', options);
+        }
+        
         // Update selected value display and styling
         function updateSelectedDisplay() {
             const crop = cropSelect.value;
             const district = districtSelect.value;
-            const month = monthSelect.value;
+            const date = dateInput.value;
             
             // Update crop display
             document.getElementById('crop-text').textContent = crop || 'None';
@@ -167,24 +170,25 @@
                 districtSelect.style.fontWeight = '500';
             }
             
-            // Update month display
-            document.getElementById('month-text').textContent = month || 'None';
-            document.getElementById('month-selected').style.display = month ? 'flex' : 'none';
-            // Update select styling
-            if (month) {
-                monthSelect.style.backgroundColor = '#f0f7ff';
-                monthSelect.style.borderColor = '#667eea';
-                monthSelect.style.color = '#667eea';
-                monthSelect.style.fontWeight = '600';
+            // Update date display
+            const formattedDate = formatDate(date);
+            document.getElementById('date-text').textContent = formattedDate;
+            document.getElementById('date-selected').style.display = date ? 'flex' : 'none';
+            // Update input styling
+            if (date) {
+                dateInput.style.backgroundColor = '#f0f7ff';
+                dateInput.style.borderColor = '#667eea';
+                dateInput.style.color = '#667eea';
+                dateInput.style.fontWeight = '600';
             } else {
-                monthSelect.style.backgroundColor = 'white';
-                monthSelect.style.borderColor = '#ddd';
-                monthSelect.style.color = '#333';
-                monthSelect.style.fontWeight = '500';
+                dateInput.style.backgroundColor = 'white';
+                dateInput.style.borderColor = '#ddd';
+                dateInput.style.color = '#333';
+                dateInput.style.fontWeight = '500';
             }
         }
         
-        // Add event listeners for all selects
+        // Add event listeners for all inputs
         cropSelect.addEventListener('change', function() {
             updateBackground();
             updateSelectedDisplay();
@@ -193,7 +197,7 @@
             updateBackground();
             updateSelectedDisplay();
         });
-        monthSelect.addEventListener('change', function() {
+        dateInput.addEventListener('change', function() {
             updateBackground();
             updateSelectedDisplay();
         });
@@ -206,11 +210,11 @@
         document.getElementById('prediction-form').addEventListener('submit', function(e) {
             const crop = document.getElementById('crop').value;
             const district = document.getElementById('district').value;
-            const month = document.getElementById('month').value;
+            const date = document.getElementById('date').value;
 
-            if (!crop || !district || !month) {
+            if (!crop || !district || !date) {
                 e.preventDefault();
-                alert('Please fill in all fields');
+                alert('Please fill in all fields including date');
                 return false;
             }
         });

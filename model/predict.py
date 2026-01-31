@@ -33,18 +33,11 @@ def load_model():
         return None, None
 
 
-def encode_features(crop, district, month):
+def encode_features(crop, district, selected_date):
     """
-    Encode crop, district, and month into feature vector
+    Encode crop, district, and date into feature vector
     Returns pandas DataFrame with encoded features
     """
-    # Month name to number mapping
-    month_map = {
-        'January': 1, 'February': 2, 'March': 3, 'April': 4,
-        'May': 5, 'June': 6, 'July': 7, 'August': 8,
-        'September': 9, 'October': 10, 'November': 11, 'December': 12
-    }
-    
     # Load feature names to know what features to create
     model, feature_names = load_model()
     if feature_names is None:
@@ -63,21 +56,22 @@ def encode_features(crop, district, month):
     if district_col in features.columns:
         features[district_col] = 1
     
-    # Set month feature
-    if 'Month' in features.columns:
-        features['Month'] = month_map.get(month, 1)
+    # Set date features (day, month, year)
+    if 'Day' in features.columns:
+        features['Day'] = selected_date.day
     
-    # Set year feature (use current year)
+    if 'Month' in features.columns:
+        features['Month'] = selected_date.month
+    
     if 'Year' in features.columns:
-        from datetime import datetime
-        features['Year'] = datetime.now().year
+        features['Year'] = selected_date.year
     
     return features
 
 
-def predict_price(crop, district, month):
+def predict_price(crop, district, selected_date):
     """
-    Predict crop price for given crop, district, and month
+    Predict crop price for given crop, district, and date
     Returns predicted price in ₹ per quintal
     """
     # Load model
@@ -87,7 +81,7 @@ def predict_price(crop, district, month):
         return None
     
     # Encode features
-    features = encode_features(crop, district, month)
+    features = encode_features(crop, district, selected_date)
     if features is None:
         print("Error: Feature encoding failed")
         return None
@@ -112,13 +106,14 @@ def predict_price(crop, district, month):
 
 if __name__ == '__main__':
     # Test prediction
+    from datetime import date
     test_crop = 'Coconut'
     test_district = 'Mysuru'
-    test_month = 'January'
+    test_date = date(2024, 6, 15)
     
-    price = predict_price(test_crop, test_district, test_month)
+    price = predict_price(test_crop, test_district, test_date)
     if price:
-        print(f"Predicted price for {test_crop} in {test_district} for {test_month}: ₹{price:.2f} per quintal")
+        print(f"Predicted price for {test_crop} in {test_district} on {test_date}: ₹{price:.2f} per quintal")
     else:
         print("Prediction failed")
 
