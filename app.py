@@ -127,7 +127,8 @@ def predict():
                              date_raw=date_str,
                              predicted_price=round(predicted_price, 2),
                              graph_url=graph_url,
-                             last_updated=last_updated)
+                             last_updated=last_updated,
+                             price_value=round(predicted_price, 2))
     
     except Exception as e:
         return render_template('error.html', 

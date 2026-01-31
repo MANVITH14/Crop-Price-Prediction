@@ -5,27 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Error - Crop Price Prediction</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Bilingual Support Scripts -->
+    <script src="{{ url_for('static', filename='js/translations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/language.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/audio.js') }}"></script>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>⚠️ Error</h1>
+            <div class="lang-toggle-container">
+                <button id="lang-toggle" onclick="toggleLanguage()" aria-label="Switch language">ಕನ್ನಡ</button>
+            </div>
+            <h1 data-translate="errorTitle">⚠️ Error</h1>
         </header>
 
         <main>
             <div class="error-card">
-                <h2>Something went wrong</h2>
-                <p class="error-message">{{ error_message }}</p>
+                <h2 data-translate="somethingWentWrong">Something went wrong</h2>
+                <p class="error-message" id="error-msg">{{ error_message }}</p>
                 <div class="action-buttons">
-                    <a href="/" class="btn-secondary">Go Back to Home</a>
+                    <a href="/" class="btn-secondary" data-translate="goBackHome">Go Back to Home</a>
                 </div>
             </div>
         </main>
 
         <footer>
-            <p>&copy; 2024 Crop Price Prediction System | Karnataka Agriculture</p>
+            <p data-translate="footer">&copy; 2024 Crop Price Prediction System | Karnataka Agriculture</p>
         </footer>
     </div>
+    
+    <script>
+        // Speak error message on page load (optional - can be removed if not needed)
+        document.addEventListener('DOMContentLoaded', function() {
+            const errorMsg = document.getElementById('error-msg');
+            if (errorMsg && errorMsg.textContent.trim()) {
+                // Error messages are already in the correct language from backend
+                // Audio can be triggered if needed
+            }
+        });
+    </script>
 </body>
 </html>
 

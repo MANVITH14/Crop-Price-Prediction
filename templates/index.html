@@ -5,76 +5,83 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crop Price Prediction - Karnataka</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Bilingual Support Scripts -->
+    <script src="{{ url_for('static', filename='js/translations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/language.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/audio.js') }}"></script>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🌾 Tech-Enabled Crop Price Prediction System</h1>
-            <p class="subtitle">Karnataka Agricultural Price Forecasting</p>
+            <div class="lang-toggle-container">
+                <button id="lang-toggle" onclick="toggleLanguage()" aria-label="Switch language">ಕನ್ನಡ</button>
+            </div>
+            <h1 data-translate="title">🌾 Tech-Enabled Crop Price Prediction System</h1>
+            <p class="subtitle" data-translate="subtitle">Karnataka Agricultural Price Forecasting</p>
         </header>
 
         <main>
             <div class="info-box">
-                <p><strong>Last Updated:</strong> <span id="last-updated">{{ last_updated }}</span></p>
+                <p><strong data-translate="lastUpdated">Last Updated:</strong> <span id="last-updated">{{ last_updated }}</span></p>
             </div>
 
             <div class="form-container">
                 <form action="/predict" method="POST" id="prediction-form">
                     <div class="form-group">
-                        <label for="crop">Select Crop:</label>
+                        <label for="crop" data-translate="selectCrop">Select Crop:</label>
                         <select name="crop" id="crop" required>
-                            <option value="">-- Select Crop --</option>
+                            <option value="" data-translate="selectCropPlaceholder">-- Select Crop --</option>
                             {% for crop in crops %}
                             <option value="{{ crop }}">{{ crop }}</option>
                             {% endfor %}
                         </select>
                         <div class="selected-value" id="crop-selected">
-                            <span class="selected-label">Selected:</span>
-                            <span class="selected-text" id="crop-text">None</span>
+                            <span class="selected-label" data-translate="selected">Selected:</span>
+                            <span class="selected-text" id="crop-text" data-translate="none">None</span>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="district">Select District:</label>
+                        <label for="district" data-translate="selectDistrict">Select District:</label>
                         <select name="district" id="district" required>
-                            <option value="">-- Select District --</option>
+                            <option value="" data-translate="selectDistrictPlaceholder">-- Select District --</option>
                             {% for district in districts %}
                             <option value="{{ district }}">{{ district }}</option>
                             {% endfor %}
                         </select>
                         <div class="selected-value" id="district-selected">
-                            <span class="selected-label">Selected:</span>
-                            <span class="selected-text" id="district-text">None</span>
+                            <span class="selected-label" data-translate="selected">Selected:</span>
+                            <span class="selected-text" id="district-text" data-translate="none">None</span>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="date">Select Date:</label>
+                        <label for="date" data-translate="selectDate">Select Date:</label>
                         <input type="date" name="date" id="date" required min="{{ min_date }}" max="{{ max_date }}">
                         <div class="selected-value" id="date-selected">
-                            <span class="selected-label">Selected:</span>
-                            <span class="selected-text" id="date-text">None</span>
+                            <span class="selected-label" data-translate="selected">Selected:</span>
+                            <span class="selected-text" id="date-text" data-translate="none">None</span>
                         </div>
                     </div>
 
-                    <button type="submit" class="btn-predict">Predict Price</button>
+                    <button type="submit" class="btn-predict" data-translate="predictPrice">Predict Price</button>
                 </form>
             </div>
 
             <div class="info-section">
-                <h2>About This System</h2>
+                <h2 data-translate="aboutTitle">About This System</h2>
                 <ul>
-                    <li>✅ Predicts prices for <strong>Coconut</strong>, <strong>Arecanut</strong>, and <strong>Pepper</strong></li>
-                    <li>✅ Covers all districts of Karnataka</li>
-                    <li>✅ Uses Machine Learning (Random Forest) for accurate predictions</li>
-                    <li>✅ Updates daily with latest market data</li>
-                    <li>✅ Shows historical price trends</li>
+                    <li><span data-translate="about1">✅ Predicts prices for</span> <strong>Coconut</strong>, <strong>Arecanut</strong>, <strong>and</strong> <strong>Pepper</strong></li>
+                    <li data-translate="about2">✅ Covers all districts of Karnataka</li>
+                    <li data-translate="about3">✅ Uses Machine Learning (Random Forest) for accurate predictions</li>
+                    <li data-translate="about4">✅ Updates daily with latest market data</li>
+                    <li data-translate="about5">✅ Shows historical price trends</li>
                 </ul>
             </div>
         </main>
 
         <footer>
-            <p>&copy; 2024 Crop Price Prediction System | Karnataka Agriculture</p>
+            <p data-translate="footer">&copy; 2024 Crop Price Prediction System | Karnataka Agriculture</p>
         </footer>
     </div>
 
@@ -126,11 +133,21 @@
         
         // Format date for display
         function formatDate(dateStr) {
-            if (!dateStr) return 'None';
+            if (!dateStr) {
+                const currentLang = getCurrentLanguage();
+                return getTranslation(currentLang, 'none');
+            }
             const date = new Date(dateStr + 'T00:00:00');
+            const currentLang = getCurrentLanguage();
+            const locale = currentLang === 'kn' ? 'kn-IN' : 'en-IN';
             const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            return date.toLocaleDateString('en-US', options);
+            return date.toLocaleDateString(locale, options);
         }
+        
+        // Update display when language changes
+        document.addEventListener('languageChanged', function() {
+            updateSelectedDisplay();
+        });
         
         // Update selected value display and styling
         function updateSelectedDisplay() {
@@ -139,7 +156,8 @@
             const date = dateInput.value;
             
             // Update crop display
-            document.getElementById('crop-text').textContent = crop || 'None';
+            const currentLang = getCurrentLanguage();
+            document.getElementById('crop-text').textContent = crop || getTranslation(currentLang, 'none');
             document.getElementById('crop-selected').style.display = crop ? 'flex' : 'none';
             // Update select styling
             if (crop) {
@@ -155,7 +173,7 @@
             }
             
             // Update district display
-            document.getElementById('district-text').textContent = district || 'None';
+            document.getElementById('district-text').textContent = district || getTranslation(currentLang, 'none');
             document.getElementById('district-selected').style.display = district ? 'flex' : 'none';
             // Update select styling
             if (district) {
@@ -172,7 +190,7 @@
             
             // Update date display
             const formattedDate = formatDate(date);
-            document.getElementById('date-text').textContent = formattedDate;
+            document.getElementById('date-text').textContent = formattedDate || getTranslation(currentLang, 'none');
             document.getElementById('date-selected').style.display = date ? 'flex' : 'none';
             // Update input styling
             if (date) {
@@ -214,7 +232,8 @@
 
             if (!crop || !district || !date) {
                 e.preventDefault();
-                alert('Please fill in all fields including date');
+                const currentLang = getCurrentLanguage();
+                alert(getTranslation(currentLang, 'fillAllFields'));
                 return false;
             }
         });

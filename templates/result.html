@@ -5,56 +5,80 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prediction Result - Crop Price Prediction</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Bilingual Support Scripts -->
+    <script src="{{ url_for('static', filename='js/translations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/language.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/audio.js') }}"></script>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🌾 Crop Price Prediction Result</h1>
+            <div class="lang-toggle-container">
+                <button id="lang-toggle" onclick="toggleLanguage()" aria-label="Switch language">ಕನ್ನಡ</button>
+            </div>
+            <h1 data-translate="resultTitle">🌾 Crop Price Prediction Result</h1>
         </header>
 
         <main>
             <div class="result-card">
-                <h2>Prediction Details</h2>
+                <h2 data-translate="predictionDetails">Prediction Details</h2>
                 <div class="result-info">
                     <div class="info-item">
-                        <span class="label">Crop:</span>
+                        <span class="label" data-translate="crop">Crop:</span>
                         <span class="value">{{ crop }}</span>
                     </div>
                     <div class="info-item">
-                        <span class="label">District:</span>
+                        <span class="label" data-translate="district">District:</span>
                         <span class="value">{{ district }}</span>
                     </div>
                     <div class="info-item">
-                        <span class="label">Date:</span>
+                        <span class="label" data-translate="date">Date:</span>
                         <span class="value">{{ date }}</span>
                     </div>
                     <div class="info-item highlight">
-                        <span class="label">Predicted Price:</span>
-                        <span class="value price">₹ {{ predicted_price }} / quintal</span>
+                        <span class="label" data-translate="predictedPrice">Predicted Price:</span>
+                        <span class="value price">₹ {{ predicted_price }} <span data-translate="perQuintal">/ quintal</span></span>
                     </div>
+                </div>
+                <!-- Audio Button for Price Announcement -->
+                <div style="text-align: center; margin-top: 20px;">
+                    <button id="audio-btn" onclick="speakPrice('{{ crop }}', '{{ district }}', '{{ date }}', {{ predicted_price }})" data-translate="listenPrice">
+                        🔊 Listen to Price
+                    </button>
                 </div>
             </div>
 
             {% if graph_url %}
             <div class="graph-container">
-                <h2>Historical Price Trend</h2>
+                <h2 data-translate="historicalTrend">Historical Price Trend</h2>
                 <img src="{{ graph_url }}" alt="Price Trend Graph" class="trend-graph">
             </div>
             {% endif %}
 
             <div class="info-box">
-                <p><strong>Last Updated:</strong> {{ last_updated }}</p>
+                <p><strong data-translate="lastUpdated">Last Updated:</strong> {{ last_updated }}</p>
             </div>
 
             <div class="action-buttons">
-                <a href="/" class="btn-secondary">Make Another Prediction</a>
+                <a href="/" class="btn-secondary" data-translate="makeAnotherPrediction">Make Another Prediction</a>
             </div>
         </main>
 
         <footer>
-            <p>&copy; 2024 Crop Price Prediction System | Karnataka Agriculture</p>
+            <p data-translate="footer">&copy; 2024 Crop Price Prediction System | Karnataka Agriculture</p>
         </footer>
     </div>
+    
+    <script>
+        // Update audio button text when language changes
+        document.addEventListener('languageChanged', function() {
+            const currentLang = getCurrentLanguage();
+            const audioBtn = document.getElementById('audio-btn');
+            if (audioBtn) {
+                audioBtn.textContent = getTranslation(currentLang, 'listenPrice');
+            }
+        });
+    </script>
 </body>
 </html>
 
